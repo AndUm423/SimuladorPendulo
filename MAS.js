@@ -1,15 +1,15 @@
 // Variables para botones
-let button, stop, simular = false;
+let button, stop, frictionButton, simular = false, frictionEnabled = true;
 
 // Variables de constantes para el sistema
-let masa, constanteK, longitudCuerda, radioDisco, angulo;
-let sliderMasa, sliderElastica, sliderL, sliderAngulo;
-let inputMasa, inputElastica, inputL, inputAngulo;
+let masa, longitudCuerda, radioDisco, angulo;
+let sliderMasa, sliderL, sliderAngulo;
+let inputMasa, inputL, inputAngulo;
 
 // Variables de cambio (sliders)
-let valorMasa, valorElastica, valorAngulo, valorLongitudC;
+let valorMasa, valorAngulo, valorLongitudC;
 
-let widthX = 1279, heightY = 600;
+let widthX = 1293, heightY = 580;
 let positionSliderX = 850;
 let positionTextX = positionSliderX - 250;
 
@@ -55,20 +55,18 @@ function controles() {
     velocityData = [];
     time = 0;
   });
+
+  frictionButton = createButton("Activar/Desactivar Fricción");
+  frictionButton.position(widthX - 800, 600);
+  frictionButton.mousePressed(() => frictionEnabled = !frictionEnabled);
 }
 
 function barrasControl() {
-  sliderMasa = createSlider(1, 50, 15, 1);
+  sliderMasa = createSlider(2, 50, 15, 1);
   sliderMasa.position(positionSliderX, 170);
   inputMasa = createInput(sliderMasa.value());
   inputMasa.position(positionSliderX + 180, 170);
   inputMasa.size(50);
-
-  //sliderElastica = createSlider(1, 100, 10, 1);
-  //sliderElastica.position(positionSliderX, 220);
-  //inputElastica = createInput(sliderElastica.value());
-  //inputElastica.position(positionSliderX + 180, 220);
-  //inputElastica.size(50);
 
   sliderL = createSlider(100, 400, 300, 1);
   sliderL.position(positionSliderX, 250);
@@ -76,7 +74,7 @@ function barrasControl() {
   inputL.position(positionSliderX + 180, 250);
   inputL.size(50);
 
-  sliderAngulo = createSlider(-PI / 3, PI / 3, PI / 6, 0.01);
+  sliderAngulo = createSlider(-PI / 4, PI / 4, PI / 6, 0.01);
   sliderAngulo.position(positionSliderX, 320);
   inputAngulo = createInput((sliderAngulo.value() * 180 / PI).toFixed(2));
   inputAngulo.position(positionSliderX + 180, 320);
@@ -88,7 +86,6 @@ function mostrarInformacion() {
   textSize(20);
   textAlign(LEFT);
   text(`Masa (kg):`, positionTextX, 100);
-  //text(`Constante Elástica (N/m):`, positionTextX, 155);
   text(`Longitud Cuerda (cm):`, positionTextX, 180);
   text(`Ángulo (°):`, positionTextX, 255);
 }
@@ -96,8 +93,6 @@ function mostrarInformacion() {
 function obtenerValores() {
   valorMasa = sliderMasa.value();
   inputMasa.value(valorMasa);
-  //valorElastica = sliderElastica.value();
-  //inputElastica.value(valorElastica);
   valorLongitudC = sliderL.value();
   inputL.value(valorLongitudC);
   valorAngulo = sliderAngulo.value();
@@ -109,13 +104,15 @@ function simularCaso() {
   strokeWeight(4);
   line(origin.x, origin.y, bob.x, bob.y);
   fill(54, 25, 117);
-  circle(bob.x, bob.y, 40);
+  circle(bob.x, bob.y, 30+valorMasa*2);
 
   if (simular) {
     let force = (-1 * valorMasa * gravity * sin(angle)) / valorLongitudC;
     angleA = force;
     angleV += angleA;
-    angleV *= damping;
+    if (frictionEnabled) {
+      angleV *= damping;
+    }
     angle += angleV;
 
     velocityData.push({ time: time, velocity: angleV });
